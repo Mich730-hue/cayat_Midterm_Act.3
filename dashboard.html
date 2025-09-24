@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>O.Consultation Dashboard</title>
+  <style>
+    @font-face {
+      font-family: 'Gilroy';
+      src: url('Gilroy-Light.ttf') format('truetype');
+      font-weight: 300;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Gilroy_Semibold';
+      src: url('gilroy-semi-bold.ttf') format('truetype');
+      font-weight: 600;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Gilroy_Extrabold';
+      src: url('gilroy-extra-bold.ttf') format('truetype');
+      font-weight: 800;
+      font-style: normal;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Gilroy', system-ui, sans-serif;
+    }
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #0594FF;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --bg: #ffffff;
+      --sidebar-bg: #2563eb;
+      --sidebar-text: white;
+      --border: #e5e7eb;
+      --shadow: 0 4px 12px rgba(0,0,0,0.05);
+      --radius: 8px;
+      --sidebar-width: 240px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      box-shadow: var(--shadow);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .sidebar-header {
+      padding: 0 24px 20px;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--sidebar-text);
+    }
+
+    .nav-links {
+      list-style: none;
+      padding: 0 10px;
+    }
+    .nav-links li { margin: 8px 0; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--sidebar-text);
+      padding: 12px 24px;
+      display: block;
+      border-radius: 6px;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 30px;
+      background: #f9fafb;
+    }
+
+    .page-title {
+      font-family: 'Gilroy_Semibold';
+      font-size: 28px;
+      color: var(--text);
+      margin-bottom: 30px;
+    }
+
+    /* ===== FORM STYLES ===== */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn-update {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-update:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-add {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s;
+      margin-bottom: 20px;
+    }
+    .btn-add:hover {
+      background: #059669;
+    }
+
+    /* ===== IMAGE UPLOAD ===== */
+    .image-upload {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .image-preview {
+      width: 200px;
+      height: 200px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    .image-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+
+    /* ===== TABLE STYLES ===== */
+    .table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: var(--text);
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-edit {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+    .btn-edit:hover {
+      background: var(--primary-dark);
+    }
+    .btn-delete {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+    .btn-delete:hover {
+      background: #dc2626;
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .pagination button {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .pagination button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .pagination button:hover:not(.active) {
+      background: #f3f4f6;
+    }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--primary);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+      font-family: 'Gilroy_Semibold';
+      font-size: 14px;
+    }
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 992px) {
+      .sidebar { width: 70px; }
+      .sidebar-header, .nav-links span { display: none; }
+      .nav-links a { justify-content: center; padding: 16px; }
+      .nav-links i { margin: 0; font-size: 20px; }
+      .main { margin-left: 70px; padding: 20px; }
+      .image-upload { flex-direction: column; }
+      .image-preview { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">Dashboard</div>
+    <ul class="nav-links">
+      <li><a href="#" class="active" data-page="hero">Hero</a></li>
+      <li><a href="#" data-page="stats">Stats</a></li>
+      <li><a href="#" data-page="about">About Us</a></li>
+      <li><a href="#" data-page="how-it-works">How It Works</a></li>
+      <li><a href="#" data-page="best-doctors">Best Doctors</a></li>
+      <li><a href="#" data-page="testimonials">What Clients Say</a></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- HERO SECTION -->
+    <section id="hero-section" class="page active">
+      <h1 class="page-title">Modify Hero/Banner Section</h1>
+      <div class="image-upload">
+        <div>
+          <label class="form-label">Upload Banner Image</label>
+          <input type="file" id="heroImage" accept="image/*" class="form-input">
+          <div class="image-preview" id="heroPreview">
+            <span>No image selected</span>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <label class="form-label">Banner Description</label>
+          <textarea id="heroDescription" class="form-textarea">He preference connection astonished on of ye. Partiality on or continuing in particular principles as. Do believing oh disposing to supported allowance we.</textarea>
+        </div>
+      </div>
+      <button class="btn-update" id="updateHero">Update</button>
+    </section>
+
+    <!-- STATS SECTION -->
+    <section id="stats-section" class="page">
+      <h1 class="page-title">Modify Stats Section</h1>
+      <div class="form-group">
+        <label class="form-label">Stat 1 Value</label>
+        <input type="text" id="stat1Value" class="form-input" value="25,356">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stat 1 Label</label>
+        <input type="text" id="stat1Label" class="form-input" value="Patients Served">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stat 2 Value</label>
+        <input type="text" id="stat2Value" class="form-input" value="6,050">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stat 2 Label</label>
+        <input type="text" id="stat2Label" class="form-input" value="Consultations this week">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stat 3 Value</label>
+        <input type="text" id="stat3Value" class="form-input" value="21">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stat 3 Label</label>
+        <input type="text" id="stat3Label" class="form-input" value="Locations">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stat 4 Value</label>
+        <input type="text" id="stat4Value" class="form-input" value="95%">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stat 4 Label</label>
+        <input type="text" id="stat4Label" class="form-input" value="Success Rate">
+      </div>
+      <button class="btn-update" id="updateStats">Update</button>
+    </section>
+
+    <!-- ABOUT US SECTION -->
+    <section id="about-section" class="page">
+      <h1 class="page-title">Modify About Us Section</h1>
+      <div class="image-upload">
+        <div>
+          <label class="form-label">Upload About Us Image</label>
+          <input type="file" id="aboutImage" accept="image/*" class="form-input">
+          <div class="image-preview" id="aboutPreview">
+            <span>No image selected</span>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <label class="form-label">About Us Description</label>
+          <textarea id="aboutDescription" class="form-textarea">He preference connection astonished on of ye. Partiality on or continuing in particular principles as. Do believing oh disposing to supported allowance we.</textarea>
+        </div>
+      </div>
+      <button class="btn-update" id="updateAbout">Update</button>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section id="how-it-works-section" class="page">
+      <h1 class="page-title">Modify How It Works Section</h1>
+      <div id="stepsContainer">
+        <!-- Steps will be dynamically generated -->
+      </div>
+      <button class="btn-update" id="updateHowItWorks">Update</button>
+    </section>
+
+    <!-- BEST DOCTORS SECTION -->
+    <section id="best-doctors-section" class="page">
+      <h1 class="page-title">Best Doctors</h1>
+      <button class="btn-add" id="addDoctorBtn">Add New Doctor</button>
+      <div class="table-container">
+        <table id="doctorsTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Doctor Image</th>
+              <th>Doctor Name</th>
+              <th>Qualification</th>
+              <th>Rating (1-5 Stars)</th>
+              <th>Short Description</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Doctors will be dynamically generated -->
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button>Previous</button>
+        <button class="active">1</button>
+        <button>Next</button>
+      </div>
+    </section>
+
+    <!-- WHAT CLIENTS SAY SECTION -->
+    <section id="testimonials-section" class="page">
+      <h1 class="page-title">What Clients Say</h1>
+      <div id="testimonialsContainer">
+        <!-- Testimonials will be dynamically generated -->
+      </div>
+      <button class="btn-update" id="updateTestimonials">Update</button>
+    </section>
+  </main>
+
+  <!-- TOAST -->
+  <div id="toast">Action completed!</div>
+
+  <script>
+    // ===== DATA MODEL =====
+    const STORAGE_KEY = 'oconsultation_dashboard_v5';
+    let data = {
+      hero: {
+        image: 'https://via.placeholder.com/400x250?text=Hero+Image',
+        description: 'He preference connection astonished on of ye. Partiality on or continuing in particular principles as. Do believing oh disposing to supported allowance we.'
+      },
+      stats: [
+        { value: '25,356', label: 'Patients Served' },
+        { value: '6,050', label: 'Consultations this week' },
+        { value: '21', label: 'Locations' },
+        { value: '95%', label: 'Success Rate' }
+      ],
+      about: {
+        image: 'https://via.placeholder.com/400x250?text=About+Us+Image',
+        description: 'He preference connection astonished on of ye. Partiality on or continuing in particular principles as. Do believing oh disposing to supported allowance we.'
+      },
+      howItWorks: [
+        { step: '01', title: 'Create Account', desc: 'Latter person am secure of estate genius at.' },
+        { step: '02', title: 'Search Doctor', desc: 'Latter person am secure of estate genius at.' },
+        { step: '03', title: 'Schedule Appo', desc: 'Latter person am secure of estate genius at.' },
+        { step: '04', title: 'Start Consultati', desc: 'Latter person am secure of estate genius at.' }
+      ],
+      doctors: [
+        { id: 1, image: 'https://via.placeholder.com/80x80?text=Dr.+Andrew', name: 'Dr. Andrew', qualification: 'Surgeon', rating: '★★★★★', description: 'And excellence partiality estimating terminated day everything.' },
+        { id: 2, image: 'https://via.placeholder.com/80x80?text=Dr.+Brown', name: 'Dr. Brown', qualification: 'Oncologist', rating: '★★★★★', description: 'And excellence partiality estimating terminated day everything.' },
+        { id: 3, image: 'https://via.placeholder.com/80x80?text=Dr.+Shaun', name: 'Dr. Shaun', qualification: 'Surgeon', rating: '★★★★★', description: 'And excellence partiality estimating terminated day everything.' }
+      ],
+      testimonials: [
+        { id: 1, name: 'Paul', rating: '⭐⭐⭐⭐⭐', text: 'Warrant present garrets limited cordial in inquiry to. Supported me sweetness behaviour shameless excellent so arranging.' },
+        { id: 2, name: 'Julian Vidal', rating: '⭐⭐⭐⭐⭐', text: 'Warrant present garrets limited cordial in inquiry to. Supported me sweetness behaviour shameless excellent so arranging.' },
+        { id: 3, name: 'Fabian Vidal', rating: '⭐⭐⭐⭐⭐', text: 'Warrant present garrets limited cordial in inquiry to. Supported me sweetness behaviour shameless excellent so arranging.' }
+      ]
+    };
+
+    // ===== DOM ELEMENTS =====
+    const sections = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    const toast = document.getElementById('toast');
+
+    // ===== UTILS =====
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showToast('Changes saved');
+    }
+
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          data = JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to load data');
+        }
+      }
+      renderAll();
+    }
+
+    // ===== RENDERING =====
+    function renderAll() {
+      renderHero();
+      renderStats();
+      renderAbout();
+      renderHowItWorks();
+      renderDoctors();
+      renderTestimonials();
+    }
+
+    function renderHero() {
+      document.getElementById('heroDescription').value = data.hero.description;
+      const preview = document.getElementById('heroPreview');
+      if (data.hero.image) {
+        preview.innerHTML = `<img src="${data.hero.image}" alt="Hero">`;
+      } else {
+        preview.innerHTML = '<span>No image selected</span>';
+      }
+    }
+
+    function renderStats() {
+      data.stats.forEach((stat, i) => {
+        document.getElementById(`stat${i+1}Value`).value = stat.value;
+        document.getElementById(`stat${i+1}Label`).value = stat.label;
+      });
+    }
+
+    function renderAbout() {
+      document.getElementById('aboutDescription').value = data.about.description;
+      const preview = document.getElementById('aboutPreview');
+      if (data.about.image) {
+        preview.innerHTML = `<img src="${data.about.image}" alt="About Us">`;
+      } else {
+        preview.innerHTML = '<span>No image selected</span>';
+      }
+    }
+
+    function renderHowItWorks() {
+      const container = document.getElementById('stepsContainer');
+      container.innerHTML = '';
+      data.howItWorks.forEach((step, i) => {
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        div.innerHTML = `
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <span style="font-weight: bold; width: 30px;">${step.step}</span>
+            <input type="text" placeholder="Title" value="${step.title}" class="form-input" data-step="${i}" data-field="title" style="width: 200px;">
+            <input type="text" placeholder="Description" value="${step.desc}" class="form-input" data-step="${i}" data-field="desc" style="flex: 1;">
+            <button class="btn-update" data-step="${i}">Update</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      // Attach update listeners
+      document.querySelectorAll('.btn-update[data-step]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const stepIndex = parseInt(btn.dataset.step);
+          const titleInput = btn.parentElement.querySelector('[data-field="title"]');
+          const descInput = btn.parentElement.querySelector('[data-field="desc"]');
+          data.howItWorks[stepIndex].title = titleInput.value;
+          data.howItWorks[stepIndex].desc = descInput.value;
+          saveData();
+          showToast('Step updated');
+        });
+      });
+    }
+
+    function renderDoctors() {
+      const table = document.getElementById('doctorsTable').querySelector('tbody');
+      table.innerHTML = '';
+      data.doctors.forEach(doctor => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${doctor.id}</td>
+          <td><img src="${doctor.image}" alt="${doctor.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"></td>
+          <td>${doctor.name}</td>
+          <td>${doctor.qualification}</td>
+          <td>${doctor.rating}</td>
+          <td>${doctor.description}</td>
+          <td class="action-buttons">
+            <button class="btn-edit" data-id="${doctor.id}">Edit</button>
+            <button class="btn-delete" data-id="${doctor.id}">Delete</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+
+      // Attach edit/delete listeners
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          const doctor = data.doctors.find(d => d.id === id);
+          if (doctor) {
+            showDoctorForm(doctor);
+          }
+        });
+      });
+
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          if (confirm('Delete this doctor?')) {
+            data.doctors = data.doctors.filter(d => d.id !== id);
+            saveData();
+            renderDoctors();
+            showToast('Doctor deleted');
+          }
+        });
+      });
+    }
+
+    function renderTestimonials() {
+      const container = document.getElementById('testimonialsContainer');
+      container.innerHTML = '';
+      data.testimonials.forEach((testimonial, i) => {
+        const div = document.createElement('div');
+        div.className = 'form-group';
+        div.innerHTML = `
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" placeholder="Name" value="${testimonial.name}" class="form-input" data-id="${i}" data-field="name" style="width: 150px;">
+            <input type="text" placeholder="Rating" value="${testimonial.rating}" class="form-input" data-id="${i}" data-field="rating" style="width: 100px;">
+            <textarea placeholder="Text" class="form-textarea" data-id="${i}" data-field="text">${testimonial.text}</textarea>
+            <button class="btn-update" data-id="${i}">Update</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      // Attach update listeners
+      document.querySelectorAll('.btn-update[data-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.dataset.id);
+          const nameInput = btn.parentElement.querySelector('[data-field="name"]');
+          const ratingInput = btn.parentElement.querySelector('[data-field="rating"]');
+          const textInput = btn.parentElement.querySelector('[data-field="text"]');
+          data.testimonials[id].name = nameInput.value;
+          data.testimonials[id].rating = ratingInput.value;
+          data.testimonials[id].text = textInput.value;
+          saveData();
+          showToast('Testimonial updated');
+        });
+      });
+    }
+
+    // ===== EVENT HANDLERS =====
+    // Navigation
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        navLinks.forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+        sections.forEach(section => section.classList.remove('active'));
+        const page = link.dataset.page;
+        document.getElementById(`${page}-section`).classList.add('active');
+      });
+    });
+
+    // Image upload preview
+    document.querySelectorAll('input[type="file"]').forEach(input => {
+      input.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          const file = e.target.files[0];
+          if (!file.type.match('image.*')) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const previewId = e.target.id.replace('Image', 'Preview');
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
+            // Save to data
+            if (e.target.id === 'heroImage') {
+              data.hero.image = ev.target.result;
+            } else if (e.target.id === 'aboutImage') {
+              data.about.image = ev.target.result;
+            }
+            saveData();
+            showToast('Image uploaded');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+
+    // Update buttons
+    document.getElementById('updateHero').addEventListener('click', () => {
+      data.hero.description = document.getElementById('heroDescription').value;
+      saveData();
+      showToast('Hero section updated');
+    });
+
+    document.getElementById('updateStats').addEventListener('click', () => {
+      data.stats[0].value = document.getElementById('stat1Value').value;
+      data.stats[0].label = document.getElementById('stat1Label').value;
+      data.stats[1].value = document.getElementById('stat2Value').value;
+      data.stats[1].label = document.getElementById('stat2Label').value;
+      data.stats[2].value = document.getElementById('stat3Value').value;
+      data.stats[2].label = document.getElementById('stat3Label').value;
+      data.stats[3].value = document.getElementById('stat4Value').value;
+      data.stats[3].label = document.getElementById('stat4Label').value;
+      saveData();
+      showToast('Stats updated');
+    });
+
+    document.getElementById('updateAbout').addEventListener('click', () => {
+      data.about.description = document.getElementById('aboutDescription').value;
+      saveData();
+      showToast('About Us section updated');
+    });
+
+    document.getElementById('updateHowItWorks').addEventListener('click', () => {
+      showToast('How It Works section updated');
+    });
+
+    document.getElementById('updateTestimonials').addEventListener('click', () => {
+      showToast('Testimonials updated');
+    });
+
+    // Add Doctor
+    document.getElementById('addDoctorBtn').addEventListener('click', () => {
+      showDoctorForm({
+        id: data.doctors.length + 1,
+        image: '',
+        name: '',
+        qualification: '',
+        rating: '★★★★★',
+        description: ''
+      });
+    });
+
+    // Show Doctor Form
+    function showDoctorForm(doctor) {
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.top = '50%';
+      container.style.left = '50%';
+      container.style.transform = 'translate(-50%, -50%)';
+      container.style.backgroundColor = 'white';
+      container.style.padding = '30px';
+      container.style.borderRadius = '10px';
+      container.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
+      container.style.zIndex = '1000';
+      container.style.maxWidth = '600px';
+      container.style.width = '90%';
+
+      container.innerHTML = `
+        <h2 style="margin-bottom: 20px;">${doctor.id ? 'Edit Doctor' : 'Add New Doctor'}</h2>
+        <div class="form-group">
+          <label class="form-label">Doctor Image</label>
+          <input type="file" id="doctorImageInput" accept="image/*" class="form-input">
+          <div class="image-preview" id="doctorPreview">
+            ${doctor.image ? `<img src="${doctor.image}" alt="Doctor">` : '<span>No image selected</span>'}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Doctor Name</label>
+          <input type="text" id="doctorName" class="form-input" value="${doctor.name}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Qualification (e.g., Surgeon)</label>
+          <input type="text" id="doctorQualification" class="form-input" value="${doctor.qualification}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rating (1-5 Stars)</label>
+          <input type="text" id="doctorRating" class="form-input" value="${doctor.rating}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Short Description</label>
+          <textarea id="doctorDescription" class="form-textarea">${doctor.description}</textarea>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button class="btn-update" id="saveDoctor">Update</button>
+          <button class="btn-delete" id="cancelDoctor">Cancel</button>
+        </div>
+      `;
+
+      document.body.appendChild(container);
+
+      // Image preview
+      const imageInput = container.querySelector('#doctorImageInput');
+      const preview = container.querySelector('#doctorPreview');
+      imageInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          const file = e.target.files[0];
+          if (!file.type.match('image.*')) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            preview.innerHTML = `<img src="${ev.target.result}" alt="Doctor">`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Save
+      container.querySelector('#saveDoctor').addEventListener('click', () => {
+        const name = document.getElementById('doctorName').value;
+        const qualification = document.getElementById('doctorQualification').value;
+        const rating = document.getElementById('doctorRating').value;
+        const description = document.getElementById('doctorDescription').value;
+        const image = preview.querySelector('img') ? preview.querySelector('img').src : doctor.image;
+
+        if (doctor.id) {
+          // Update existing
+          const index = data.doctors.findIndex(d => d.id === doctor.id);
+          if (index !== -1) {
+            data.doctors[index] = { ...doctor, name, qualification, rating, description, image };
+          }
+        } else {
+          // Add new
+          data.doctors.push({
+            id: data.doctors.length + 1,
+            image,
+            name,
+            qualification,
+            rating,
+            description
+          });
+        }
+
+        saveData();
+        renderDoctors();
+        showToast(doctor.id ? 'Doctor updated' : 'Doctor added');
+        document.body.removeChild(container);
+      });
+
+      // Cancel
+      container.querySelector('#cancelDoctor').addEventListener('click', () => {
+        document.body.removeChild(container);
+      });
+    }
+
+    // ===== INIT =====
+    loadData();
+  </script>
+</body>
+</html>
